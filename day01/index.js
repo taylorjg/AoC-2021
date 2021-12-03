@@ -12,7 +12,7 @@ const part1 = measurements => {
       }
     },
     { lastMeasurement: undefined, numIncreases: 0 })
-  console.log('Answer (part1): ', lastResult.numIncreases)
+  console.log('Answer (part1):', lastResult.numIncreases)
 }
 
 function* windowGen(xs, n) {
@@ -42,7 +42,7 @@ const part2 = measurements => {
       }
     },
     { lastWindowSum: undefined, numIncreases: 0 })
-  console.log('Answer (part2): ', lastResult.numIncreases)
+  console.log('Answer (part2):', lastResult.numIncreases)
 }
 
 const main = async () => {

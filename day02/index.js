@@ -16,7 +16,7 @@ const part1 = commands => {
       }
     },
     { position: 0, depth: 0 })
-  console.log('Answer (part1): ', lastResult.position * lastResult.depth)
+  console.log('Answer (part1):', lastResult.position * lastResult.depth)
 }
 
 const part2 = commands => {
@@ -33,7 +33,7 @@ const part2 = commands => {
       }
     },
     { position: 0, depth: 0, aim: 0 })
-  console.log('Answer (part2): ', lastResult.position * lastResult.depth)
+  console.log('Answer (part2):', lastResult.position * lastResult.depth)
 }
 
 const main = async () => {
