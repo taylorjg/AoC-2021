@@ -18,7 +18,6 @@
   },
   "homepage": "https://github.com/taylorjg/AoC-2021#readme",
   "dependencies": {
-    "rambda": "^6.9.0",
     "ramda": "^0.27.1"
   }
 }
