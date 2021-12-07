@@ -66,6 +66,31 @@ const part2New = (initialAges, days) => {
   console.log('Answer (part2):', initialAges.length + growth)
 }
 
+const sums = n => R.range(1, n + 1).reduce((a, b) => a + b, 0)
+
+const spawnedCount = (age, days) => {
+  const dayOfFirstSpawn = age + 1
+  const remainingDays = days - dayOfFirstSpawn
+  if (remainingDays < 7) return 0
+  const remainingDays2 = remainingDays - 9
+  console.log({ dayOfFirstSpawn, remainingDays, remainingDays2 })
+  if (remainingDays2 > 0) {
+    const v2 = Math.floor(remainingDays2 / 7)
+    console.log({ v2 })
+    return 1 + sums(v2 + 1)
+  } else {
+    return 1
+  }
+}
+
+const part2Again = (initialAges, days) => {
+  let total = initialAges.length
+  for (const age of initialAges) {
+    total += spawnedCount(age, days)
+  }
+  console.log('Answer (part2):', total)
+}
+
 const main = async () => {
   const buffer = await fs.readFile('day06/example.txt')
   // const buffer = await fs.readFile('day06/input.txt')
@@ -73,14 +98,16 @@ const main = async () => {
 
   part1(initialAges, 18)
   part2(initialAges, 18)
-  part2New(initialAges, 18)
+  part2Again(initialAges, 18)
 
-  part1(initialAges, 80)
-  part2(initialAges, 80)
-  part2New(initialAges, 80)
+  // part1(initialAges, 80)
+  // part2(initialAges, 80)
+  // part2Again(initialAges, 80)
 
-  part2(initialAges, 256)
-  // part2New(initialAges, 256)
+  // part2Again(initialAges, 256)
+
+  const r = spawnedCount(1, 18)
+  console.log({ r })
 }
 
 main()
