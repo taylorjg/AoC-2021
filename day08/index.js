@@ -36,8 +36,8 @@ const part1 = entries => {
 }
 
 const main = async () => {
-  // const buffer = await fs.readFile('day08/example.txt')
-  const buffer = await fs.readFile('day08/input.txt')
+  const buffer = await fs.readFile('day08/example.txt')
+  // const buffer = await fs.readFile('day08/input.txt')
   const lines = buffer.toString().split('\n').filter(Boolean)
   const entries = lines.map(parseEntry)
   // console.dir(entries)
