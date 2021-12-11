@@ -31,6 +31,7 @@ const getNeighbourCoords = (grid, row, col) => {
 const ESC = '\u001B'
 const TERM_RESET = `${ESC}[0m`
 const TERM_BOLD = `${ESC}[1m`
+const TERM_MAGENTA = `${ESC}[35m`
 
 const dumpGrid = (grid, flashed = []) => {
   const isHighlighted = (row, col) => Boolean(flashed.find(coords => coords.row === row && coords.col === col))
@@ -38,23 +39,64 @@ const dumpGrid = (grid, flashed = []) => {
     const vs = grid[row]
     const descriptions = vs.map((v, col) => ({ v, highlighted: isHighlighted(row, col) }))
     const line = descriptions.reduce(
-      (acc, desc) => acc + (desc.highlighted ? `${TERM_BOLD}${desc.v}${TERM_RESET}` : desc.v),
+      (acc, desc) => acc + (desc.highlighted ? `${TERM_MAGENTA}${desc.v}${TERM_RESET}` : desc.v),
       '')
     console.log(line)
   }
   console.log('-'.repeat(10))
 }
 
+const makeKey = (row, col) => `${row}:${col}`
+
+const parseKey = key => {
+  const bits = key.split(':')
+  return { row: Number(bits[0]), col: Number(bits[1]) }
+}
+
 const step = grid => {
-  const flashed = []
-  return flashed
+
+  const flashed = new Set()
+
+  for (const row of R.range(0, 10)) {
+    for (const col of R.range(0, 10)) {
+      grid[row][col] += 1
+    }
+  }
+
+  for (; ;) {
+    let flashedCountThisIter = 0
+    for (const row of R.range(0, 10)) {
+      for (const col of R.range(0, 10)) {
+        if (grid[row][col] > 9) {
+          const key = makeKey(row, col)
+          if (!flashed.has(key)) {
+            flashed.add(key)
+            flashedCountThisIter += 1
+            const ns = getNeighbourCoords(grid, row, col)
+            for (const n of ns) {
+              grid[n.row][n.col] += 1
+            }
+          }
+        }
+      }
+    }
+    if (flashedCountThisIter === 0) break
+  }
+
+  const flashedArray = Array.from(flashed).map(parseKey)
+
+  for (const { row, col } of flashedArray) {
+    grid[row][col] = 0
+  }
+
+  return flashedArray
 }
 
 const part1 = (grid, steps) => {
   dumpGrid(grid)
-  const totalFlashed = 0
+  let totalFlashed = 0
   for (const _ of R.range(0, steps)) {
-    const flashed = step()
+    const flashed = step(grid)
     dumpGrid(grid, flashed)
     totalFlashed += flashed.length
   }
@@ -62,11 +104,12 @@ const part1 = (grid, steps) => {
 }
 
 const main = async () => {
-  const buffer = await fs.readFile('day11/example.txt')
-  // const buffer = await fs.readFile('day11/input.txt')
+  // const buffer = await fs.readFile('day11/example.txt')
+  const buffer = await fs.readFile('day11/input.txt')
   const lines = buffer.toString().split('\n').filter(Boolean)
   const grid = lines.map(line => Array.from(line).map(Number))
-  part1(grid, 1)
+  console.dir(grid)
+  part1(grid, 100)
 }
 
 main()
