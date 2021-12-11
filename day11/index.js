@@ -1,8 +1,6 @@
 const fs = require('fs').promises
 const R = require('ramda')
 
-const sum = xs => xs.reduce((a, b) => a + b, 0)
-
 const within = (minInclusive, maxExclusive, v) => v >= minInclusive && v < maxExclusive
 
 function* offsetsGen() {
@@ -30,7 +28,6 @@ const getNeighbourCoords = (grid, row, col) => {
 
 const ESC = '\u001B'
 const TERM_RESET = `${ESC}[0m`
-const TERM_BOLD = `${ESC}[1m`
 const TERM_MAGENTA = `${ESC}[35m`
 
 const dumpGrid = (grid, flashed = []) => {
@@ -43,7 +40,6 @@ const dumpGrid = (grid, flashed = []) => {
       '')
     console.log(line)
   }
-  console.log('-'.repeat(10))
 }
 
 const makeKey = (row, col) => `${row}:${col}`
@@ -93,14 +89,31 @@ const step = grid => {
 }
 
 const part1 = (grid, steps) => {
-  dumpGrid(grid)
   let totalFlashed = 0
-  for (const _ of R.range(0, steps)) {
+  let lastStepIndex = steps - 1
+  for (const stepIndex of R.range(0, steps)) {
     const flashed = step(grid)
-    dumpGrid(grid, flashed)
+    if (stepIndex === lastStepIndex) {
+      console.log('Final grid:')
+      dumpGrid(grid, flashed)
+    }
     totalFlashed += flashed.length
   }
   console.log('Answer (part1):', totalFlashed)
+}
+
+const part2 = grid => {
+  let steps = 0
+  for (; ;) {
+    steps += 1
+    const flashed = step(grid)
+    if (flashed.length === 100) {
+      console.log('Final grid:')
+      dumpGrid(grid, flashed)
+      break
+    }
+  }
+  console.log('Answer (part2):', steps)
 }
 
 const main = async () => {
@@ -108,8 +121,9 @@ const main = async () => {
   const buffer = await fs.readFile('day11/input.txt')
   const lines = buffer.toString().split('\n').filter(Boolean)
   const grid = lines.map(line => Array.from(line).map(Number))
-  console.dir(grid)
   part1(grid, 100)
+  const grid2 = lines.map(line => Array.from(line).map(Number))
+  part2(grid2)
 }
 
 main()
