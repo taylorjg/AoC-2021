@@ -21,7 +21,7 @@ const part1 = (vs, am) => {
 
   const traverse = (i, pis, pns) => {
     const js = am[i].flatMap((bit, index) => bit ? [index] : [])
-    for (j of js) {
+    for (const j of js) {
       const jn = vs[j]
       if (isSmallCave(jn) && pns.includes(jn)) {
         // Stop following this path
@@ -43,8 +43,6 @@ const part1 = (vs, am) => {
   const startIndex = vs.findIndex(v => v === 'start')
   traverse(startIndex, [startIndex], ['start'])
 
-  console.dir(paths)
-
   console.log('Answer (part1):', paths.size)
 }
 
@@ -54,8 +52,9 @@ const part2 = (vs, am) => {
 
   const traverse = (i, pis, pns, twoVisitCave) => {
     const js = am[i].flatMap((bit, index) => bit ? [index] : [])
-    for (j of js) {
+    for (const j of js) {
       const jn = vs[j]
+
       if (isSmallCave(jn)) {
         if (twoVisitCave) {
           if (jn === twoVisitCave) {
@@ -74,16 +73,23 @@ const part2 = (vs, am) => {
           }
         }
       }
+
       const pis2 = pis.slice()
       pis2.push(j)
+
       const pns2 = pns.slice()
       pns2.push(jn)
+
       if (jn === 'end') {
         const fullPathName = pns2.join(',')
         paths.add(fullPathName)
       } else {
         if (twoVisitCave) {
           traverse(j, pis2, pns2, twoVisitCave)
+          const count = pns2.filter(n => n === twoVisitCave).length
+          if (count === 1 && isSmallCave(jn) && jn !== 'start') {
+            traverse(j, pis2, pns2, jn)
+          }
         } else {
           if (isSmallCave(jn) && jn !== 'start') {
             traverse(j, pis2, pns2, jn)
@@ -98,26 +104,21 @@ const part2 = (vs, am) => {
   const startIndex = vs.findIndex(v => v === 'start')
   traverse(startIndex, [startIndex], ['start'])
 
-  console.dir(paths)
-
   console.log('Answer (part2):', paths.size)
 }
 
 const main = async () => {
-  const buffer = await fs.readFile('day12/example1.txt')
+  // const buffer = await fs.readFile('day12/example1.txt')
   // const buffer = await fs.readFile('day12/example2.txt')
   // const buffer = await fs.readFile('day12/example3.txt')
-  // const buffer = await fs.readFile('day12/input.txt')
+  const buffer = await fs.readFile('day12/input.txt')
   const lines = buffer.toString().split('\n').filter(Boolean)
   const edges = lines.map(line => line.split('-')).map(([from, to]) => ({ from, to }))
-  console.dir(edges)
   const froms = edges.map(({ from }) => from)
   const tos = edges.map(({ to }) => to)
   const vertices = Array.from(new Set([...froms, ...tos]))
-  console.dir(vertices)
   const am = buildAdjacencyMatrix(vertices, edges)
-  console.dir(am)
-  // part1(vertices, am)
+  part1(vertices, am)
   part2(vertices, am)
 }
 
