@@ -19,7 +19,7 @@ const part1 = (vs, am) => {
 
   const paths = new Set()
 
-  const fred = (i, pis, pns) => {
+  const traverse = (i, pis, pns) => {
     const js = am[i].flatMap((bit, index) => bit ? [index] : [])
     for (j of js) {
       const jn = vs[j]
@@ -35,13 +35,13 @@ const part1 = (vs, am) => {
         const fullPathName = pns2.join(',')
         paths.add(fullPathName)
       } else {
-        fred(j, pis2, pns2)
+        traverse(j, pis2, pns2)
       }
     }
   }
 
   const startIndex = vs.findIndex(v => v === 'start')
-  fred(startIndex, [startIndex], ['start'])
+  traverse(startIndex, [startIndex], ['start'])
 
   console.dir(paths)
 
@@ -52,7 +52,7 @@ const part2 = (vs, am) => {
 
   const paths = new Set()
 
-  const fred = (i, pis, pns, twoVisitCave) => {
+  const traverse = (i, pis, pns, twoVisitCave) => {
     const js = am[i].flatMap((bit, index) => bit ? [index] : [])
     for (j of js) {
       const jn = vs[j]
@@ -83,13 +83,12 @@ const part2 = (vs, am) => {
         paths.add(fullPathName)
       } else {
         if (twoVisitCave) {
-          fred(j, pis2, pns2, twoVisitCave)
+          traverse(j, pis2, pns2, twoVisitCave)
         } else {
           if (isSmallCave(jn) && jn !== 'start') {
-            // fred(j, pis2, pns2)
-            fred(j, pis2, pns2, jn)
+            traverse(j, pis2, pns2, jn)
           } else {
-            fred(j, pis2, pns2)
+            traverse(j, pis2, pns2)
           }
         }
       }
@@ -97,7 +96,7 @@ const part2 = (vs, am) => {
   }
 
   const startIndex = vs.findIndex(v => v === 'start')
-  fred(startIndex, [startIndex], ['start'])
+  traverse(startIndex, [startIndex], ['start'])
 
   console.dir(paths)
 
