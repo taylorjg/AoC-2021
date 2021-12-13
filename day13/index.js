@@ -1,92 +1,87 @@
 const fs = require('fs').promises
 const R = require('ramda')
 
-const foldUp = matrix1 => {
-  const numRows1 = matrix1.length
-  const numCols1 = matrix1[0].length
-  const numRows2 = Math.floor(numRows1 / 2)
-  const numCols2 = numCols1
-  const matrix2 = R.range(0, numRows2).map(_ => Array(numCols2).fill(0, 0, numCols2))
-  for (const y of R.range(0, numRows2)) {
-    for (const x of R.range(0, numCols2)) {
-      matrix2[y][x] = matrix1[y][x]
-    }
-  }
-  for (const y of R.range(0, numRows2)) {
-    for (const x of R.range(0, numCols2)) {
-      if (matrix1[numRows1 - y - 1][x]) {
-        matrix2[y][x] = 1
-      }
-    }
-  }
-  return matrix2
-}
+const sum = xs => xs.reduce((a, b) => a + b, 0)
 
-const foldLeft = matrix1 => {
-  const numRows1 = matrix1.length
-  const numCols1 = matrix1[0].length
-  const numRows2 = numRows1
-  const numCols2 = Math.floor(numCols1 / 2)
-  const matrix2 = R.range(0, numRows2).map(_ => Array(numCols2).fill(0, 0, numCols2))
-  for (const y of R.range(0, numRows2)) {
-    for (const x of R.range(0, numCols2)) {
-      matrix2[y][x] = matrix1[y][x]
-    }
-  }
-  for (const y of R.range(0, numRows2)) {
-    for (const x of R.range(0, numCols2)) {
-      if (matrix1[y][numCols1 - x - 1]) {
-        matrix2[y][x] = 1
-      }
-    }
-  }
-  return matrix2
-}
-
-const countOnes = matrix => {
-  const numRows = matrix.length
-  const numCols = matrix[0].length
-  let ones = 0
-  for (const y of R.range(0, numRows)) {
-    for (const x of R.range(0, numCols)) {
-      if (matrix[y][x]) {
-        ones += 1
-      }
-    }
-  }
-  return ones
-}
-
-const part1 = (dots, folds) => {
+const getDimensions = dots => {
   const maxx = Math.max(...dots.map(dot => dot.x))
   const maxy = Math.max(...dots.map(dot => dot.y))
   const numRows = maxy + 1
   const numCols = maxx + 1
-  let matrix = R.range(0, numRows).map(_ => Array(numCols).fill(0, 0, numCols))
-  for (const { x, y } of dots) {
-    matrix[y][x] = 1
-  }
-  const fold = folds[0]
-  matrix = fold.y ? foldUp(matrix) : foldLeft(matrix)
-  const ones = countOnes(matrix)
-  console.log('Answer (part1):', ones)
+  return { numRows, numCols }
 }
 
-const part2 = (dots, folds) => {
-  const maxx = Math.max(...dots.map(dot => dot.x))
-  const maxy = Math.max(...dots.map(dot => dot.y))
-  const numRows = maxy + 1
-  const numCols = maxx + 1
-  let matrix = R.range(0, numRows).map(_ => Array(numCols).fill(0, 0, numCols))
+const initMatrixFromDimensions = (numRows, numCols) =>
+  matrix = R.range(0, numRows).map(_ => Array(numCols).fill(0, 0, numCols))
+
+const initMatrixFromDots = dots => {
+  const { numRows, numCols } = getDimensions(dots)
+  const matrix = initMatrixFromDimensions(numRows, numCols)
   for (const { x, y } of dots) {
     matrix[y][x] = 1
   }
-  for (const fold of folds) {
-    matrix = fold.y ? foldUp(matrix) : foldLeft(matrix)
+  return matrix
+}
+
+const foldUp = matrixIn => {
+  const numRowsIn = matrixIn.length
+  const numColsIn = matrixIn[0].length
+  const numRowsOut = Math.floor(numRowsIn / 2)
+  const numColsOut = numColsIn
+  const matrixOut = initMatrixFromDimensions(numRowsOut, numColsOut)
+  for (const y of R.range(0, numRowsOut)) {
+    for (const x of R.range(0, numColsOut)) {
+      matrixOut[y][x] = matrixIn[y][x]
+      if (matrixIn[numRowsIn - y - 1][x]) {
+        matrixOut[y][x] = 1
+      }
+    }
   }
+  return matrixOut
+}
+
+const foldLeft = matrixIn => {
+  const numRowsIn = matrixIn.length
+  const numColsIn = matrixIn[0].length
+  const numRowsOut = numRowsIn
+  const numColsOut = Math.floor(numColsIn / 2)
+  const matrixOut = initMatrixFromDimensions(numRowsOut, numColsOut)
+  for (const y of R.range(0, numRowsOut)) {
+    for (const x of R.range(0, numColsOut)) {
+      matrixOut[y][x] = matrixIn[y][x]
+      if (matrixIn[y][numColsIn - x - 1]) {
+        matrixOut[y][x] = 1
+      }
+    }
+  }
+  return matrixOut
+}
+
+const countOnes = matrix =>
+  sum(matrix.map(row => row.filter(Boolean).length))
+
+const applyFolds = (initialMatrix, folds) =>
+  folds.reduce(
+    (previousMatrix, fold) => (fold.y ? foldUp : foldLeft)(previousMatrix),
+    initialMatrix
+  )
+
+const dumpMatrix = matrix => {
   for (const row of matrix) {
     console.log(row.map(n => n ? 'o' : ' ').join(''))
   }
+}
+
+const part1 = (dots, folds) => {
+  const initialMatrix = initMatrixFromDots(dots)
+  const finalMatrix = applyFolds(initialMatrix, folds.slice(0, 1))
+  console.log('Answer (part1):', countOnes(finalMatrix))
+}
+
+const part2 = (dots, folds) => {
+  const initialMatrix = initMatrixFromDots(dots)
+  const finalMatrix = applyFolds(initialMatrix, folds)
+  dumpMatrix(finalMatrix)
 }
 
 const parseDot = line => {
