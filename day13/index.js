@@ -85,7 +85,7 @@ const part2 = (dots, folds) => {
     matrix = fold.y ? foldUp(matrix) : foldLeft(matrix)
   }
   for (const row of matrix) {
-    console.log(row.map(n => n ? 'x' : ' ').join(''))
+    console.log(row.map(n => n ? 'o' : ' ').join(''))
   }
 }
 
