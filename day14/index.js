@@ -76,6 +76,7 @@ const main = async () => {
   const template = lines.shift()
   const rules = lines.map(parseRule)
   part1(template, rules, 10)
+  part1(template, rules, 40)
 }
 
 main()
