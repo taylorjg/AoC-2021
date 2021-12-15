@@ -11,7 +11,6 @@ const parseKey = key => {
 }
 
 const manhattanDistance = (a, b) => Math.abs(a.row - b.row) + Math.abs(a.col - b.col)
-const euclideanDistance = (a, b) => Math.hypot(a.row - b.row, a.col - b.col)
 
 const reconstructPath = (cameFrom, currentKey) => {
   const totalPath = [currentKey]
@@ -90,12 +89,40 @@ const part1 = grid => {
   console.log('Answer (part1):', answer)
 }
 
+const part2 = grid => {
+  const TILES = 5
+  const numRows = grid.length
+  const numCols = grid[0].length
+  const numTiledRows = numRows * TILES
+  const numTiledCols = numCols * TILES
+  const START = { row: 0, col: 0 }
+  const GOAL = { row: numTiledRows - 1, col: numTiledCols - 1 }
+  const gridLookup = location => {
+    const { row, col } = location
+    const modRow = row % numRows
+    const modCol = col % numCols
+    const originalValue = grid[modRow][modCol]
+    const tileRow = Math.floor(row / numRows)
+    const tileCol = Math.floor(col / numCols)
+    const d = tileRow + tileCol
+    const incrementedValue = originalValue + d
+    return incrementedValue <= 9 ? incrementedValue : incrementedValue - 9
+  }
+  const path = A_star(numTiledRows, numTiledCols, gridLookup, START, GOAL)
+  console.dir(path)
+  const values = path.map(gridLookup)
+  console.dir(values)
+  const answer = sum(values.slice(1))
+  console.log('Answer (part2):', answer)
+}
+
 const main = async () => {
-  const buffer = await fs.readFile('day15/example.txt')
-  // const buffer = await fs.readFile('day15/input.txt')
+  // const buffer = await fs.readFile('day15/example.txt')
+  const buffer = await fs.readFile('day15/input.txt')
   const lines = buffer.toString().split('\n').filter(Boolean)
   const grid = lines.map(line => Array.from(line).map(Number))
   part1(grid)
+  part2(grid)
 }
 
 main()
