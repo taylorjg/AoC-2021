@@ -28,21 +28,16 @@ const parseOperatorPacket = (binaryString, version, typeId) => {
   const lengthBit = binaryString.slice(6, 7)
   if (lengthBit === '0') {
     const lengthInBits = parseInt(binaryString.slice(7, 7 + 15), 2)
-    // console.log('operator', { lengthBit, lengthInBits })
     let remainder = binaryString.slice(7 + 15, 7 + 15 + lengthInBits)
     const packets = []
     for (; ;) {
       const packet = parsePacket(remainder)
       packets.push(packet)
       remainder = remainder.slice(packet.length)
-      if (remainder === '' || Array.from(remainder).every(ch => ch === '0')) {
-        break
-      }
+      if (remainder === '') break
     }
     return { version, typeId, length: 7 + 15 + lengthInBits, packets }
   } else {
-    const lengthInSubPackets = parseInt(binaryString.slice(7, 7 + 11), 2)
-    // console.log('operator', { lengthBit, lengthInSubPackets })
     let lengthInBits = 0
     let remainder = binaryString.slice(7 + 11)
     const packets = []
@@ -51,9 +46,7 @@ const parseOperatorPacket = (binaryString, version, typeId) => {
       packets.push(packet)
       lengthInBits += packet.length
       remainder = remainder.slice(packet.length)
-      if (remainder === '' || Array.from(remainder).every(ch => ch === '0')) {
-        break
-      }
+      if (remainder === '') break
     }
     return { version, typeId, length: 7 + 11 + lengthInBits, packets }
   }
@@ -62,20 +55,16 @@ const parseOperatorPacket = (binaryString, version, typeId) => {
 const parsePacket = binaryString => {
   const version = parseInt(binaryString.slice(0, 3), 2)
   const typeId = parseInt(binaryString.slice(3, 6), 2)
-  // console.log({ version, typeId })
   if (typeId === 4) {
-    const packet = parseLiteralPacket(binaryString, version, typeId)
-    return packet
+    return parseLiteralPacket(binaryString, version, typeId)
   } else {
     return parseOperatorPacket(binaryString, version, typeId)
   }
 }
 
 const part1 = hexString => {
-  let binaryString = hexStringToBinaryString(hexString)
-  console.log(binaryString)
+  const binaryString = hexStringToBinaryString(hexString)
   const packet = parsePacket(binaryString)
-  // console.dir(packet, { depth: null })
   const versions = []
   const extractVersions = p => {
     const { version, packets = [] } = p
@@ -83,7 +72,6 @@ const part1 = hexString => {
     packets.forEach(extractVersions)
   }
   extractVersions(packet)
-  console.dir(versions)
   const answer = sum(versions)
   console.log('Answer (part1):', answer)
 }
