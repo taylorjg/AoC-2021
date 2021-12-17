@@ -129,10 +129,16 @@ const part1 = targetArea => {
   const bests = []
   // for (let velocityX = minVelocityX; velocityX <= maxVelocityX; velocityX++) {
   for (let velocityX = 1; velocityX <= 250; velocityX++) {
-    const best = findRangeY(velocityX, targetArea)
-    if (best) {
-      bests.push(best)
+    for (let velocityY = 1; velocityY < 250; velocityY++) {
+      const r = calculateTrajectorySteps(velocityX, velocityY, targetArea)
+      if (r.ok) {
+        bests.push({ velocityX, velocityY, ...r })
+      }
     }
+    // const best = findRangeY(velocityX, targetArea)
+    // if (best) {
+    //   bests.push(best)
+    // }
   }
   console.dir(bests)
   if (bests.length === 0) {
@@ -151,7 +157,7 @@ const main = async () => {
   // target area: x=257..286, y=-101..-57
   const input = { left: 257, right: 286, bottom: -101, top: -57 }
 
-  // part1(example)
+  part1(example)
 
   // 1176: too low
   // 1225: too low
