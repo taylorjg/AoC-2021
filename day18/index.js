@@ -90,19 +90,26 @@ const explode = number => {
     }
   }
 
-  if (number.parent.left === number) {
-    number.parent.left = 0
-  }
-
-  if (number.parent.right === number) {
-    number.parent.right = 0
+  if (number.parent) {
+    if (number.parent.left === number) {
+      number.parent.left = 0
+    }
+    if (number.parent.right === number) {
+      number.parent.right = 0
+    }
   }
 }
 
-const split = number => {
-  const left = Math.floor(number / 2)
-  const right = Math.ceil(number / 2)
-  return { left, right }
+const splitLeft = n => {
+  const left = Math.floor(n.left / 2)
+  const right = Math.ceil(n.left / 2)
+  n.left = { parent: n, left, right }
+}
+
+const splitRight = n => {
+  const left = Math.floor(n.right / 2)
+  const right = Math.ceil(n.right / 2)
+  n.right = { parent: n, left, right }
 }
 
 // To reduce a snailfish number, you must repeatedly do the first action in
@@ -112,28 +119,39 @@ const split = number => {
 //
 //  If any regular number is 10 or greater, the leftmost such regular number splits.
 const reduce = number => {
-  const descend = (n, level) => {
-    if (Number.isInteger(n)) return false
-    // if (Number.isInteger(n)) {
-    //   if (n >= 10) {
-    //     // make change
-    //     return true
-    //   }
-    // }
+
+  const reduceOneStep = (n, level) => {
+    if (isRegular(n)) return false
+    if (isRegular(n.left) && n.left >= 10) {
+      splitLeft(n)
+      return true
+    }
+    if (isRegular(n.right) && n.right >= 10) {
+      splitRight(n)
+      return true
+    }
     if (level === 4) {
       explode(n)
       return true
-    } else {
-      if (descend(n.left, level + 1)) return true
-      return descend(n.right, level + 1)
     }
+    if (reduceOneStep(n.left, level + 1)) {
+      return true
+    }
+    return reduceOneStep(n.right, level + 1)
   }
-  descend(number, 0)
+
+  for (; ;) {
+    const reduced = reduceOneStep(number, 0)
+    if (!reduced) break
+  }
 }
 
 const add = (a, b) => {
-  const number = { left: a, right: b }
-  return reduce(number)
+  const c = { left: a, right: b }
+  c.left.parent = c
+  c.right.parent = c
+  reduce(c)
+  return c
 }
 
 const magnitude = number => {
@@ -142,9 +160,12 @@ const magnitude = number => {
 }
 
 const part1 = numbers => {
+  // const c = add(numbers[0], numbers[1])
+  // console.dir(c)
   const total = numbers.reduce(add)
-  const answer = magnitude(total)
-  console.log('Answer (part1):', answer)
+  console.dir(total, { depth: null })
+  // const answer = magnitude(total)
+  // console.log('Answer (part1):', answer)
 }
 
 const parseNumber = line => {
@@ -184,23 +205,11 @@ const parseNumber = line => {
 }
 
 const main = async () => {
-  // const buffer = await fs.readFile('day18/example1.txt')
-  // // const buffer = await fs.readFile('day18/input.txt')
-  // const lines = buffer.toString().split('\n').filter(Boolean)
-  // const numbers = lines.map(parseNumber)
-  // console.dir(numbers, { depth: null })
-  // part1(numbers)
-  // const number = parseNumber('[[[[[9,8],1],2],3],4]')
-  // const number = parseNumber('[7,[6,[5,[4,[3,2]]]]]')
-  // const number = parseNumber('[[6,[5,[4,[3,2]]]],1]')
-  // const number = parseNumber('[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]')
-  const number = parseNumber('[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]')
-  // console.dir(number.right.right.right.right)
-  // explode(number.right.right.right.right)
-  reduce(number)
-  console.dir(number, { depth: null })
-  // console.dir(split(parseNumber('')))
-  // console.dir(reduce(parseNumber('')))
+  const buffer = await fs.readFile('day18/example0.txt')
+  // const buffer = await fs.readFile('day18/input.txt')
+  const lines = buffer.toString().split('\n').filter(Boolean)
+  const numbers = lines.map(parseNumber)
+  part1(numbers)
 }
 
 main()
