@@ -15,6 +15,8 @@ const add = (a, b) => {
 }
 
 const magnitude = number => {
+  if (Number.isInteger(number)) return number
+  return 3 * magnitude(number.left) + 2 * magnitude(number.right)
 }
 
 const part1 = numbers => {
