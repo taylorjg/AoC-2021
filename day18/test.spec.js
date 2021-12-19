@@ -8,7 +8,6 @@ const {
   reduce,
   add,
   magnitude,
-  isNode
 } = require('./logic')
 
 test.each([
@@ -62,5 +61,60 @@ test.each([
   expect(node.right).toBe(pair[1])
   explode(node)
   const actual = formatNumber(number)
+  expect(actual).toBe(expected)
+})
+
+test.each([
+  ['[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]', '[[[[0,7],4],[[7,8],[6,0]]],[8,1]]']
+])('reduce %s  = %s', (line, expected) => {
+  const number = parseNumber(line)
+  reduce(number)
+  const actual = formatNumber(number)
+  expect(actual).toBe(expected)
+})
+
+test.each([
+  ['[[[[4,3],4],4],[7,[[8,4],9]]]', '[1,1]', '[[[[0,7],4],[[7,8],[6,0]]],[8,1]]']
+])('%s + %s = %s', (line1, line2, expected) => {
+  const a = parseNumber(line1)
+  const b = parseNumber(line2)
+  const c = add(a, b)
+  const actual = formatNumber(c)
+  expect(actual).toBe(expected)
+})
+
+test.each([
+  [
+    [
+      '[1,1]',
+      '[2,2]',
+      '[3,3]',
+      '[4,4]'
+    ],
+    '[[[[1,1],[2,2]],[3,3]],[4,4]]'
+  ],
+  [[
+    '[1,1]',
+    '[2,2]',
+    '[3,3]',
+    '[4,4]',
+    '[5,5]'
+  ],
+    '[[[[3,0],[5,3]],[4,4]],[5,5]]'
+  ],
+  [[
+    '[1,1]',
+    '[2,2]',
+    '[3,3]',
+    '[4,4]',
+    '[5,5]',
+    '[6,6]'
+  ],
+    '[[[[5,0],[7,4]],[5,5]],[6,6]]'
+  ]
+])('add list of numbers', (lines, expected) => {
+  const numbers = lines.map(parseNumber)
+  const result = numbers.reduce(add)
+  const actual = formatNumber(result)
   expect(actual).toBe(expected)
 })
