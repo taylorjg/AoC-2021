@@ -122,16 +122,16 @@ const reduce = number => {
 
   const reduceOneStep = (n, level) => {
     if (isRegular(n)) return false
+    if (level === 4) {
+      explode(n)
+      return true
+    }
     if (isRegular(n.left) && n.left >= 10) {
       splitLeft(n)
       return true
     }
     if (isRegular(n.right) && n.right >= 10) {
       splitRight(n)
-      return true
-    }
-    if (level === 4) {
-      explode(n)
       return true
     }
     if (reduceOneStep(n.left, level + 1)) {
@@ -160,12 +160,10 @@ const magnitude = number => {
 }
 
 const part1 = numbers => {
-  // const c = add(numbers[0], numbers[1])
-  // console.dir(c)
   const total = numbers.reduce(add)
   console.dir(total, { depth: null })
-  // const answer = magnitude(total)
-  // console.log('Answer (part1):', answer)
+  const answer = magnitude(total)
+  console.log('Answer (part1):', answer)
 }
 
 const parseNumber = line => {
@@ -204,12 +202,40 @@ const parseNumber = line => {
   return result.node
 }
 
+const formatNumber = n => {
+  let s = ''
+  const helper = n => {
+    if (isRegular(n)) {
+      s += n.toString()
+    } else {
+      s += '['
+      if (isRegular(n.left)) {
+        s += n.left.toString()
+      } else {
+        helper(n.left)
+      }
+      s += ','
+      if (isRegular(n.right)) {
+        s += n.right.toString()
+      } else {
+        helper(n.right)
+      }
+      s += ']'
+    }
+  }
+  helper(n)
+  return s
+}
+
 const main = async () => {
-  const buffer = await fs.readFile('day18/example0.txt')
-  // const buffer = await fs.readFile('day18/input.txt')
-  const lines = buffer.toString().split('\n').filter(Boolean)
-  const numbers = lines.map(parseNumber)
-  part1(numbers)
+  // const buffer = await fs.readFile('day18/example2.txt')
+  // // const buffer = await fs.readFile('day18/input.txt')
+  // const lines = buffer.toString().split('\n').filter(Boolean)
+  // const numbers = lines.map(parseNumber)
+  // part1(numbers)
+  const number = parseNumber('[[[9,[3,8]],[[0,9],6]],[[[3,7],[4,9]],3]]')
+  console.dir(number, { depth: null })
+  console.dir(formatNumber(number))
 }
 
 main()
