@@ -150,7 +150,10 @@ const add = (a, b) => {
   const c = { left: a, right: b }
   c.left.parent = c
   c.right.parent = c
+  console.log(' ', formatNumber(a))
+  console.log('+', formatNumber(b))
   reduce(c)
+  console.log('=', formatNumber(c))
   return c
 }
 
@@ -220,14 +223,15 @@ const formatNumber = n => {
 }
 
 const main = async () => {
-  // const buffer = await fs.readFile('day18/example2.txt')
-  // // const buffer = await fs.readFile('day18/input.txt')
-  // const lines = buffer.toString().split('\n').filter(Boolean)
-  // const numbers = lines.map(parseNumber)
+  const buffer = await fs.readFile('day18/example1.txt')
+  // const buffer = await fs.readFile('day18/input.txt')
+  const lines = buffer.toString().split('\n').filter(Boolean)
+  const numbers = lines.map(parseNumber)
+  // numbers.forEach(n => console.log(formatNumber(n)))
   // part1(numbers)
-  const number = parseNumber('[[[9,[3,8]],[[0,9],6]],[[[3,7],[4,9]],3]]')
-  console.dir(number, { depth: null })
-  console.dir(formatNumber(number))
+  const c = add(numbers[0], numbers[1])
+  // const d = add(c, numbers[2])
+  // const e = add(d, numbers[3])
 }
 
 main()
