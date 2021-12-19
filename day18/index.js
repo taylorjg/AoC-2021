@@ -206,20 +206,12 @@ const formatNumber = n => {
   let s = ''
   const helper = n => {
     if (isRegular(n)) {
-      s += n.toString()
+      s += n
     } else {
       s += '['
-      if (isRegular(n.left)) {
-        s += n.left.toString()
-      } else {
-        helper(n.left)
-      }
+      helper(n.left)
       s += ','
-      if (isRegular(n.right)) {
-        s += n.right.toString()
-      } else {
-        helper(n.right)
-      }
+      helper(n.right)
       s += ']'
     }
   }
