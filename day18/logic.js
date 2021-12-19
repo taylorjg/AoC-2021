@@ -1,16 +1,16 @@
 const isRoot = n => !n.parent
-const isRegular = n => Number.isInteger(n)
-const isNode = n => !isRegular(n)
+const isRegularNumber = n => Number.isInteger(n)
+const isNode = n => !isRegularNumber(n)
 
 const findRoot = n => isRoot(n) ? n : findRoot(n.parent)
 
-const listNodesWithRegulars = root => {
-  const regulars = []
+const listNodesWithRegularNumbers = root => {
+  const nodesWithRegularNumbers = []
   const helper = (n, p) => {
-    if (isRegular(n)) {
-      const len = regulars.length
-      if (len === 0 || p !== regulars[len - 1]) {
-        regulars.push(p)
+    if (isRegularNumber(n)) {
+      const len = nodesWithRegularNumbers.length
+      if (len === 0 || p !== nodesWithRegularNumbers[len - 1]) {
+        nodesWithRegularNumbers.push(p)
       }
       return
     }
@@ -20,43 +20,43 @@ const listNodesWithRegulars = root => {
     }
   }
   helper(root)
-  return regulars
+  return nodesWithRegularNumbers
 }
 
-const findLeftRegular = n => {
+const findLeftNodeRegularNumber = n => {
   const root = findRoot(n)
-  const regulars = listNodesWithRegulars(root)
-  const index = regulars.findIndex(m => m === n)
+  const nodesWithRegularNumbers = listNodesWithRegularNumbers(root)
+  const index = nodesWithRegularNumbers.findIndex(node => node === n)
   if (index < 1) return null
-  return regulars[index - 1]
+  return nodesWithRegularNumbers[index - 1]
 }
 
-const findRightRegular = n => {
+const findRightNodeRegularNumber = n => {
   const root = findRoot(n)
-  const regulars = listNodesWithRegulars(root)
-  const index = regulars.findIndex(m => m === n)
-  if (index < 0 || index >= regulars.length - 1) return null
-  return regulars[index + 1]
+  const nodesWithRegularNumbers = listNodesWithRegularNumbers(root)
+  const index = nodesWithRegularNumbers.findIndex(node => node === n)
+  if (index < 0 || index >= nodesWithRegularNumbers.length - 1) return null
+  return nodesWithRegularNumbers[index + 1]
 }
 
 const explode = number => {
 
-  const leftNodeWithRegular = findLeftRegular(number)
-  const rightNodeWithRegular = findRightRegular(number)
+  const leftNodeWithRegularNumber = findLeftNodeRegularNumber(number)
+  const rightNodeWithRegularNumber = findRightNodeRegularNumber(number)
 
-  if (leftNodeWithRegular) {
-    if (isRegular(leftNodeWithRegular.right)) {
-      leftNodeWithRegular.right += number.left
+  if (leftNodeWithRegularNumber) {
+    if (isRegularNumber(leftNodeWithRegularNumber.right)) {
+      leftNodeWithRegularNumber.right += number.left
     } else {
-      leftNodeWithRegular.left += number.left
+      leftNodeWithRegularNumber.left += number.left
     }
   }
 
-  if (rightNodeWithRegular) {
-    if (isRegular(rightNodeWithRegular.left)) {
-      rightNodeWithRegular.left += number.right
+  if (rightNodeWithRegularNumber) {
+    if (isRegularNumber(rightNodeWithRegularNumber.left)) {
+      rightNodeWithRegularNumber.left += number.right
     } else {
-      rightNodeWithRegular.right += number.right
+      rightNodeWithRegularNumber.right += number.right
     }
   }
 
@@ -85,13 +85,9 @@ const splitRight = n => {
 
 const findFirstLevel4Node = root => {
   const helper = (n, level) => {
-    if (isRegular(n)) return null
+    if (isRegularNumber(n)) return null
     if (level === 4) return n
-    const n2 = helper(n.left, level + 1)
-    if (n2) return n2
-    const n3 = helper(n.right, level + 1)
-    if (n3) return n3
-    return null
+    return helper(n.left, level + 1) || helper(n.right, level + 1)
   }
   return helper(root, 0)
 }
@@ -104,13 +100,13 @@ const reduce = number => {
       explode(firstLevel4Node)
       reduced = true
     } else {
-      const nodesWithRegulars = listNodesWithRegulars(number)
+      const nodesWithRegulars = listNodesWithRegularNumbers(number)
       const firstBigRegular = nodesWithRegulars.find(n => (
-        (isRegular(n.left) && n.left >= 10) ||
-        (isRegular(n.right) && n.right >= 10)
+        (isRegularNumber(n.left) && n.left >= 10) ||
+        (isRegularNumber(n.right) && n.right >= 10)
       ))
       if (firstBigRegular) {
-        if (isRegular(firstBigRegular.left) && firstBigRegular.left >= 10) {
+        if (isRegularNumber(firstBigRegular.left) && firstBigRegular.left >= 10) {
           splitLeft(firstBigRegular)
         } else {
           splitRight(firstBigRegular)
@@ -174,7 +170,7 @@ const parseNumber = line => {
 const formatNumber = n => {
   let s = ''
   const helper = n => {
-    if (isRegular(n)) {
+    if (isRegularNumber(n)) {
       s += n
     } else {
       s += '['
@@ -192,7 +188,7 @@ module.exports = {
   parseNumber,
   formatNumber,
   isRoot,
-  isRegular,
+  isRegular: isRegularNumber,
   isNode,
   explode,
   reduce,
