@@ -23,40 +23,36 @@ const listNodesWithRegularNumbers = root => {
   return nodesWithRegularNumbers
 }
 
-const findLeftNodeRegularNumber = n => {
+const findNearestNodesWithRegularNumbers = n => {
   const root = findRoot(n)
   const nodesWithRegularNumbers = listNodesWithRegularNumbers(root)
   const index = nodesWithRegularNumbers.findIndex(node => node === n)
-  if (index < 1) return null
-  return nodesWithRegularNumbers[index - 1]
-}
-
-const findRightNodeRegularNumber = n => {
-  const root = findRoot(n)
-  const nodesWithRegularNumbers = listNodesWithRegularNumbers(root)
-  const index = nodesWithRegularNumbers.findIndex(node => node === n)
-  if (index < 0 || index >= nodesWithRegularNumbers.length - 1) return null
-  return nodesWithRegularNumbers[index + 1]
+  const nearestLeft = index - 1 >= 0
+    ? nodesWithRegularNumbers[index - 1]
+    : null
+  const nearestRight = index + 1 < nodesWithRegularNumbers.length
+    ? nodesWithRegularNumbers[index + 1]
+    : null
+  return { nearestLeft, nearestRight }
 }
 
 const explode = number => {
 
-  const leftNodeWithRegularNumber = findLeftNodeRegularNumber(number)
-  const rightNodeWithRegularNumber = findRightNodeRegularNumber(number)
+  const { nearestLeft, nearestRight } = findNearestNodesWithRegularNumbers(number)
 
-  if (leftNodeWithRegularNumber) {
-    if (isRegularNumber(leftNodeWithRegularNumber.right)) {
-      leftNodeWithRegularNumber.right += number.left
+  if (nearestLeft) {
+    if (isRegularNumber(nearestLeft.right)) {
+      nearestLeft.right += number.left
     } else {
-      leftNodeWithRegularNumber.left += number.left
+      nearestLeft.left += number.left
     }
   }
 
-  if (rightNodeWithRegularNumber) {
-    if (isRegularNumber(rightNodeWithRegularNumber.left)) {
-      rightNodeWithRegularNumber.left += number.right
+  if (nearestRight) {
+    if (isRegularNumber(nearestRight.left)) {
+      nearestRight.left += number.right
     } else {
-      rightNodeWithRegularNumber.right += number.right
+      nearestRight.right += number.right
     }
   }
 
@@ -83,6 +79,14 @@ const splitRight = n => {
   n.right = { parent: n, left, right }
 }
 
+const split = n => {
+  if (isRegularNumber(n.left) && n.left >= 10) {
+    splitLeft(n)
+  } else {
+    splitRight(n)
+  }
+}
+
 const findFirstLevel4Node = root => {
   const helper = (n, level) => {
     if (isRegularNumber(n)) return null
@@ -106,11 +110,7 @@ const reduce = number => {
         (isRegularNumber(n.right) && n.right >= 10)
       ))
       if (firstBigRegular) {
-        if (isRegularNumber(firstBigRegular.left) && firstBigRegular.left >= 10) {
-          splitLeft(firstBigRegular)
-        } else {
-          splitRight(firstBigRegular)
-        }
+        split(firstBigRegular)
         reduced = true
       }
     }
