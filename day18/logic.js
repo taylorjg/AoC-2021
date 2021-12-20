@@ -96,6 +96,15 @@ const findFirstLevel4Node = root => {
   return helper(root, 0)
 }
 
+const findFirstBigRegular = root => {
+  const nodesWithRegulars = listNodesWithRegularNumbers(root)
+  const firstBigRegular = nodesWithRegulars.find(n => (
+    (isRegularNumber(n.left) && n.left >= 10) ||
+    (isRegularNumber(n.right) && n.right >= 10)
+  ))
+  return firstBigRegular
+}
+
 const reduce = number => {
   for (; ;) {
     let reduced = false
@@ -104,11 +113,7 @@ const reduce = number => {
       explode(firstLevel4Node)
       reduced = true
     } else {
-      const nodesWithRegulars = listNodesWithRegularNumbers(number)
-      const firstBigRegular = nodesWithRegulars.find(n => (
-        (isRegularNumber(n.left) && n.left >= 10) ||
-        (isRegularNumber(n.right) && n.right >= 10)
-      ))
+      const firstBigRegular = findFirstBigRegular(number)
       if (firstBigRegular) {
         split(firstBigRegular)
         reduced = true
